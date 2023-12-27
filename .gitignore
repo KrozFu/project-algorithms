@@ -1,0 +1,9 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+__pyphi_cache__
+.vscode/
+venv/
+*.py[cod]
+pyphi.log
+
+# tests/
