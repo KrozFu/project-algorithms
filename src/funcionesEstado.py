@@ -1,5 +1,34 @@
 import pandas as pd
-import Exclusiones as E
+import src.exclusiones as E
+
+val_alfa = {
+    'A': 0,
+    'B': 1,
+    'C': 2,
+    'D': 3,
+    'E': 4,
+    'F': 5,
+    'G': 6,
+    'H': 7,
+    'I': 8,
+    'J': 9,
+    'K': 10,
+    'L': 11,
+    'M': 12,
+    'N': 13,
+    'O': 14,
+    'P': 15,
+    'Q': 16,
+    'R': 17,
+    'S': 18,
+    'T': 19,
+    'U': 20,
+    'V': 21,
+    'W': 22,
+    'X': 23,
+    'Y': 24,
+    'Z': 25
+}
 
 def EstadoCanalF(Array,Posiciones,tam):
     my_dic = {}
@@ -164,7 +193,6 @@ def DivisionElementos(Operacion,Porcentajes):
     Operacion = Operacion.split("/")
     ElementosFuturos= Operacion[0]
     print(Operacion)
-    print(Operacion[1]+' / '+Operacion[0])
     if(Operacion[1]!=str(0) and Operacion[0]!=str(0)):
         ElementosPresente=Operacion[1].split("=")[0]
         ValorPresente=Operacion[1].split("=")[1]
@@ -178,15 +206,28 @@ def DivisionElementos(Operacion,Porcentajes):
         #print(Porcentajes)
         return(Porcentajes[ValorPresente])
     else:
+
+
         #print(ElementosFuturos+' / '+ElementosPresente)
         if(ElementosPresente == str(0)):
             if(len(ElementosFuturos)==3):
                 return(E.PresenteCero(Porcentajes))
             else:
                 Final=E.ExcluirFuturo(ElementosFuturos,Porcentajes)
+                # print(Final)
+
                 return(E.PresenteCero(Final))
-        elif(ElementosFuturos== str(0)):
-            E.FuturoCero(ElementosPresente)
+
+        
+        # Entrada para evaluar futuro vacio
+        elif(ElementosFuturos == str(0)):
+            val_presente = val_alfa[ElementosPresente]
+            diccionario_resultante = E.reducir_diccionario(Porcentajes,val_presente)
+            # print(E.FuturoCero(diccionario_resultante))
+
+            return(E.FuturoCero(diccionario_resultante))
+
+
         elif(len(ElementosFuturos)!=3 and len(ElementosPresente)==3):
             Casos=E.ExcluirFuturo(ElementosFuturos,Porcentajes)
             #print(Casos[ValorPresente])

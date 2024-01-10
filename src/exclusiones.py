@@ -1,13 +1,16 @@
 from difflib import ndiff
 from itertools import product
 
+
 def ExcluirFuturo(Elementos,Porcentajes):
-    differences = list(ndiff(Elementos, 'ABC'))
+    differences = list(ndiff(Elementos, 'ABC'))   
     differences = [diff[2:] for diff in differences if diff.startswith('-') or diff.startswith('+')]
+
     if len(differences)==1:
         return(ExcluirunFuturo(differences,Porcentajes))
     else:
         return(ExcluirunosFuturos(differences,Porcentajes))
+
 
 def ExcluirunFuturo(Futuro,Porcentajes):
     Futuros={}
@@ -39,8 +42,10 @@ def ExcluirunFuturo(Futuro,Porcentajes):
     return(Futuros)
 
 def ExcluirunosFuturos(elemento,tabla):
+    
     Futuros={}
     if elemento == ['A','B']:
+
         for Key,value in tabla.items():
             Futuros[Key]=[0,0]
             posicion =0
@@ -50,6 +55,11 @@ def ExcluirunosFuturos(elemento,tabla):
                 else:
                     Futuros[Key][1]+=x
                 posicion+=1
+
+
+
+
+
     elif elemento == ['A','C']:
         posicion=0
         for Key,value in tabla.items():
@@ -60,6 +70,11 @@ def ExcluirunosFuturos(elemento,tabla):
                     posicion = 1
                 else:
                     posicion=0
+
+
+
+
+
     elif elemento == ['B','C']:
         for Key,value in tabla.items():
             Futuros[Key]=[0,0]
@@ -71,6 +86,8 @@ def ExcluirunosFuturos(elemento,tabla):
                     Futuros[Key][1]+=x
                 posicion+=1
     return(Futuros)
+
+
 
 def ExcluirPresente(Porcentajes,Futuros,Presentes,ValorPresente):
     ExclusionFuturos={}
@@ -91,6 +108,7 @@ def ExcluirPresente(Porcentajes,Futuros,Presentes,ValorPresente):
     else:
         return(Retorno[Futuros][ValorPresente])
 
+
 def ExcluirUnPresente(llave,presente,valores):
     Retorno={}
     differences = list(ndiff(presente, 'ABC'))
@@ -109,6 +127,7 @@ def ExcluirUnPresente(llave,presente,valores):
                         i = len(valores)  # Termina el bucle cuando se cumple la condición
                     else:
                         i += 1
+
     elif differences[0]=='B':
         for Key,value in valores.items():
             if(not(str(Key[0])+str(Key[-1]) in Retorno)):
@@ -122,6 +141,7 @@ def ExcluirUnPresente(llave,presente,valores):
                         i = len(valores)  # Termina el bucle cuando se cumple la condición
                     else:
                         i += 1
+
     elif differences[0]=='C':
         for Key,value in valores.items():
             if(not(Key[0:2] in Retorno)):
@@ -135,7 +155,9 @@ def ExcluirUnPresente(llave,presente,valores):
                         i = len(valores)  # Termina el bucle cuando se cumple la condición
                     else:
                         i += 1
+
     return(Retorno)
+
 
 #Cuanto se ingresa una sola variable de presente se excluyen varios esta funcion se encarga de eso
 def ExcluirVariosPresentes(llave,presentes,valores):
@@ -143,6 +165,7 @@ def ExcluirVariosPresentes(llave,presentes,valores):
     differences = list(ndiff(presentes, 'ABC'))
     differences = [diff[2:] for diff in differences if diff.startswith('-') or diff.startswith('+')]
     return(AutomatizacionVP(Retorno,valores,ord(presentes.lower()) - 97))
+
 
 def AutomatizacionVP(Retorno,valores,Posicion):
     llaves = {"0": [], "1": []}
@@ -196,9 +219,15 @@ def PresenteCero(Futuro):
         Final.append(Resultados[str(x)])
     return Final
 
+
+
 def FuturoCero(Presente):
-    print("futuro")
-    pass
+    resultados = {clave: sum(valores) for clave, valores in Presente.items()}
+    final = []
+    for x in resultados:
+        final.append(resultados[str(x)])
+    return final
+
 
 def EMD(Primera,Segunda):
     emd = 0
@@ -208,5 +237,17 @@ def EMD(Primera,Segunda):
                 emd += Primera[x]*0.01 - Segunda[x]*0.01
             elif Segunda[x] > Primera[x]:
                 emd += Segunda[x]*0.01 - Primera[x]*0.01
-    # print(type(emd))
     return emd
+
+
+def reducir_diccionario(diccionario, val_presente):
+    nuevos_items = {'0': [0.0] * len(diccionario['000']),
+                    '1': [0.0] * len(diccionario['000'])}
+
+    for clave, valores in diccionario.items():
+        if clave[val_presente] == "0":
+            nuevos_items['0'] = [nuevos_items['0'][i] + valores[i] for i in range(len(valores))]
+        elif clave[val_presente] == "1":
+            nuevos_items['1'] = [nuevos_items['1'][i] + valores[i] for i in range(len(valores))]
+
+    return nuevos_items

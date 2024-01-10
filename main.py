@@ -1,15 +1,13 @@
-import FuncionesEstado as F;
+import src.funcionesEstado as F;
 import pandas as pd
-import Exclusiones as E
-
+import src.exclusiones as E
 
 Entrada1 = [0,1,1,0,1,1,0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,0,0,0,1];
 Entrada2 = [0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,0,0];
 Entrada3 = [0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,1,1,1,0,1,0,1,0,1,0,1,0,1,0];
 
-
 def CargarDatos():
-    dataframe1 = pd.read_excel('Muestra7-8.xlsx', usecols="B:D",skiprows=[0,1],sheet_name="Muestra 8")
+    dataframe1 = pd.read_excel('data/Muestra7-8.xlsx', usecols="B:D",skiprows=[0,1],sheet_name="Muestra 8")
 
     dataframe1 = dataframe1.values.tolist()
     nuevos_arrays = [[] for _ in range(len(dataframe1[0]))]
@@ -61,6 +59,7 @@ def CrearEstados(Array):
 
     Porcentajes = F.EstadoEstadoF(Array,Posiciones,Estados)
 
+
     Porcentajes = {
             '000':[100,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
             '001':[0.0,100,0.0,0.0,0.0,0.0,0.0,0.0],
@@ -72,24 +71,53 @@ def CrearEstados(Array):
             '111':[0.0,0.0,0.0,100,0.0,0.0,0.0,0.0]
     }
 
+    ## Matriz Buena
+    # Porcentajes = {
+    #     '000': [100, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    #     '001': [0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0, 0.0],
+    #     '010': [0.0, 0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0],
+    #     '011': [0.0, 0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0],
+    #     '100': [0.0, 100, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    #     '101': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 100],
+    #     '110': [0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0, 0.0],
+    #     '111': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 100, 0.0]
+    # }
+
     # for x in Porcentajes.keys():
     #     print(x+str(Porcentajes[x]))
 
-    # print("-----------------------------------------------------------")
-    # Resultados = F.DivisionElementos("ABC/AC=10",Porcentajes)
-    # print(Resultados)
+    funciones_pruebas(Porcentajes)
 
-    # Primero = F.DivisionElementos("AB/AC=10",Porcentajes)
-    # print(Primero)
-    # Segundo = F.DivisionElementos("C/0",Porcentajes)
-    # print(Segundo)
-    # Mul ={}
-    # Mul['A']= Primero
-    # Mul['B']= Segundo
+def funciones_pruebas(Porcentajes):
+    print("-----------------------------------------------------------")
+    Resultados = F.DivisionElementos("ABC/AC=10",Porcentajes)
+    print(Resultados)
 
-    # print(E.Multiplicar(Mul))
-    # distancia = E.EMD(Resultados,E.Multiplicar(Mul))
-    # print(distancia)
+    Primero = F.DivisionElementos("AB/AC=10",Porcentajes)
+    print(Primero)
+    Segundo = F.DivisionElementos("C/0",Porcentajes)
+    print(Segundo)
+    Mul ={}
+    Mul['A']= Primero
+    Mul['B']= Segundo
+
+    distancia = E.EMD(Resultados, E.Multiplicar(Mul))
+    print(f"EMD={distancia}")
+
+    print("-----------------------------------------------------------")
+    Resultados = F.DivisionElementos("ABC/AC=10",Porcentajes)
+    print(Resultados)
+
+    Primero = F.DivisionElementos("BC/AC=10",Porcentajes)
+    print(Primero)
+    Segundo = F.DivisionElementos("A/0",Porcentajes)
+    print(Segundo)
+    Mul ={}
+    Mul['A']= Primero
+    Mul['B']= Segundo
+
+    distancia = E.EMD(Resultados, E.Multiplicar(Mul))
+    print(f"EMD={distancia}")
 
     # print("-----------------------------------------------------------")
     # Resultados = F.DivisionElementos("ABC/ABC=100",Porcentajes)
@@ -105,7 +133,8 @@ def CrearEstados(Array):
     # Mul['B']= Segundo
 
     # distancia = E.EMD(Resultados,E.Multiplicar(Mul))
-    # print(distancia)
+    # print(f"EMD={distancia}")
+
 
     # print("-----------------------------------------------------------")
     # Resultados = F.DivisionElementos("ABC/AC=10",Porcentajes)
@@ -121,17 +150,20 @@ def CrearEstados(Array):
 
     # print(E.Multiplicar(Mul))
     # distancia = E.EMD(Resultados,E.Multiplicar(Mul))
-    # print(distancia)
-    
+    # print(f"EMD={distancia}")
+
+    # print("-----------------------------------------------------------")
     # Segundo = F.DivisionElementos("C/0",Porcentajes)
-    Segundo = F.DivisionElementos("0/A",Porcentajes)
-    print(Segundo)
+    # Segundo = F.DivisionElementos("0/C",Porcentajes)
+    # print(Segundo)
+    # print("-----------------------------------------------------------")
 
+def main():
+    CrearEstados(CargarDatos()[0]);
+    # CrearEstados([Entrada1,Entrada2,Entrada3]);
 
-
-CrearEstados(CargarDatos()[0]);
-# CrearEstados([Entrada1,Entrada2,Entrada3]);
-
+if __name__ == "__main__":
+    main()
 
 
     # -----------------------------------------------------------------------------------------

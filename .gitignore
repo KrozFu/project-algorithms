@@ -6,4 +6,4 @@ venv/
 *.py[cod]
 pyphi.log
 
-# tests/
+tests/
