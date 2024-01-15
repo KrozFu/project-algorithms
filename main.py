@@ -1,6 +1,7 @@
-import src.funcionesEstado as F;
+import src.funcionesEstado as F
 import pandas as pd
 import src.exclusiones as E
+import tests.funciones_tests as T
 
 Entrada1 = [0,1,1,0,1,1,0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,0,0,0,1];
 Entrada2 = [0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,0,0];
@@ -59,104 +60,85 @@ def CrearEstados(Array):
 
     Porcentajes = F.EstadoEstadoF(Array,Posiciones,Estados)
 
-
-    Porcentajes = {
-            '000':[100,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
-            '001':[0.0,100,0.0,0.0,0.0,0.0,0.0,0.0],
-            '010':[0.0,0.0,0.0,0.0,0.0,100,0.0,0.0],
-            '011':[0.0,0.0,0.0,0.0,0.0,100,0.0,0.0],
-            '100':[0.0,0.0,0.0,0.0,100,0.0,0.0,0.0],
-            '101':[0.0,0.0,0.0,0.0,0.0,0.0,0.0,100],
-            '110':[0.0,100,0.0,0.0,0.0,0.0,0.0,0.0],
-            '111':[0.0,0.0,0.0,100,0.0,0.0,0.0,0.0]
-    }
-
-    ## Matriz Buena
-    # Porcentajes = {
-    #     '000': [100, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    #     '001': [0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0, 0.0],
-    #     '010': [0.0, 0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0],
-    #     '011': [0.0, 0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0],
-    #     '100': [0.0, 100, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-    #     '101': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 100],
-    #     '110': [0.0, 0.0, 0.0, 0.0, 100, 0.0, 0.0, 0.0],
-    #     '111': [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 100, 0.0]
-    # }
+    # Matriz de Pruebas
+    Porcentajes = T.matriz()
 
     # for x in Porcentajes.keys():
     #     print(x+str(Porcentajes[x]))
 
-    funciones_pruebas(Porcentajes)
+    # T.funciones_pruebas(Porcentajes)
 
-def funciones_pruebas(Porcentajes):
+    vector1 = ['0', 'A', 'B', 'C']
+    vector2 = ['0', 'A', 'C']
+    estado = "10"
+
+    generar_posibles_casos(vector1, vector2,estado,Porcentajes)
+
+
+def generar_posibles_casos(vector1, vector2, estado, porcentajes):
+    string1 = ''.join(x for x in vector1[1:])
+    string2 = ''.join(x for x in vector2[1:])
+    
+    caso_base = str(string1+"/"+string2+"="+estado)
+    
+    dic_val_presentes = {}
+    # Verificar que las longitudes de ambas cadenas sean iguales
+    if len(string2) != len(estado):
+        print("Las longitudes de las cadenas no son iguales.")
+    else:
+        for i in range(len(string2)):
+            dic_val_presentes[string2[i]] = estado[i]
+
+    resultados = F.DivisionElementos(caso_base,porcentajes)
+    print("Caso Base")
+    print(resultados)
     print("-----------------------------------------------------------")
-    Resultados = F.DivisionElementos("ABC/AC=10",Porcentajes)
-    print(Resultados)
 
-    Primero = F.DivisionElementos("AB/AC=10",Porcentajes)
-    print(Primero)
-    Segundo = F.DivisionElementos("C/0",Porcentajes)
-    print(Segundo)
-    Mul ={}
-    Mul['A']= Primero
-    Mul['B']= Segundo
+    combinaciones = F.generar_combinaciones(vector1,vector2)
+    # print(combinaciones)
 
-    distancia = E.EMD(Resultados, E.Multiplicar(Mul))
-    print(f"EMD={distancia}")
+    for llave, valores in combinaciones.items():
+        caso1 = valores[0]
+        caso2 = valores[1]
 
-    print("-----------------------------------------------------------")
-    Resultados = F.DivisionElementos("ABC/AC=10",Porcentajes)
-    print(Resultados)
+        res1 = caso1.split("/")[1]
+        res2 = caso2.split("/")[1]
 
-    Primero = F.DivisionElementos("BC/AC=10",Porcentajes)
-    print(Primero)
-    Segundo = F.DivisionElementos("A/0",Porcentajes)
-    print(Segundo)
-    Mul ={}
-    Mul['A']= Primero
-    Mul['B']= Segundo
+        resultado_val = ""
 
-    distancia = E.EMD(Resultados, E.Multiplicar(Mul))
-    print(f"EMD={distancia}")
+        if res1 != "0":
+            for caracter in res1:
+                if caracter in dic_val_presentes:
+                    resultado_val += dic_val_presentes[caracter]
+            caso1 = caso1+"="+resultado_val
+        else:
+            caso1 = caso1
 
-    # print("-----------------------------------------------------------")
-    # Resultados = F.DivisionElementos("ABC/ABC=100",Porcentajes)
-    # print(Resultados)
+        resultado_val = ""
+        if res2 != "0":
+            for caracter in res2:
+                if caracter in dic_val_presentes:
+                    resultado_val += dic_val_presentes[caracter]
+            caso2 = caso2+"="+resultado_val
+        else:
+            caso2 = caso2
 
-    # print("-----------------------")
-    # Primero = F.DivisionElementos("AC/ABC=100",Porcentajes)
-    # print(Primero)
-    # Segundo = F.DivisionElementos("B/0",Porcentajes)
-    # print(Segundo)
-    # Mul ={}
-    # Mul['A']= Primero
-    # Mul['B']= Segundo
+        # # Imprime los valores para comprobar
+        print(f"caso1: {caso1}, -- ,caso2: {caso2}")
 
-    # distancia = E.EMD(Resultados,E.Multiplicar(Mul))
-    # print(f"EMD={distancia}")
+            
+        Primero = F.DivisionElementos(caso1,porcentajes)
+        print(Primero)
+        Segundo = F.DivisionElementos(caso2,porcentajes)
+        print(Segundo)
+        Mul ={}
+        Mul['A']= Primero
+        Mul['B']= Segundo
 
+        distancia = E.EMD(resultados, E.Multiplicar(Mul))
+        print(f"EMD={distancia}")
+        print("-----------------------------------------------------------")
 
-    # print("-----------------------------------------------------------")
-    # Resultados = F.DivisionElementos("ABC/AC=10",Porcentajes)
-    # print(Resultados)
-
-    # Primero = F.DivisionElementos("0/A",Porcentajes)
-    # print(Primero)
-    # Segundo = F.DivisionElementos("ABC/C=10",Porcentajes)
-    # print(Segundo)
-    # Mul ={}
-    # Mul['A']= Primero
-    # Mul['B']= Segundo
-
-    # print(E.Multiplicar(Mul))
-    # distancia = E.EMD(Resultados,E.Multiplicar(Mul))
-    # print(f"EMD={distancia}")
-
-    # print("-----------------------------------------------------------")
-    # Segundo = F.DivisionElementos("C/0",Porcentajes)
-    # Segundo = F.DivisionElementos("0/C",Porcentajes)
-    # print(Segundo)
-    # print("-----------------------------------------------------------")
 
 def main():
     CrearEstados(CargarDatos()[0]);
@@ -164,65 +146,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-    # -----------------------------------------------------------------------------------------
-    # Convertir el diccionario en una lista de arreglos de NumPy
-    # data_array_list = list(Porcentajes.values())
-
-    # # Convertir la lista en un arreglo de NumPy
-    # tpm = np.array(data_array_list)
-
-    # cm = np.array([
-    #     [0, 1, 1],
-    #     [1, 0, 1],
-    #     [1, 1, 0],
-    # ])
-
-    # network = pyphi.Network(tpm, cm=cm, node_labels=['A', 'B', 'C'])
-    # state = (1,0,0)
-    # nodes = ('A', 'B', 'C')
-    # subsystem = pyphi.Subsystem(network, state, nodes)
-
-    # A, B, C = subsystem.node_indices
-
-    # mechanism = (A, B, C)
-    # purview = (A, C)
-    # mip = subsystem.effect_mip(mechanism, purview)
-    # print(mip)
-
-    # mip_c = subsystem.cause_mip(mechanism, purview)
-    # print(mip_c)
-
-    # ces = pyphi.compute.ces(subsystem)
-    # print(ces.labeled_mechanisms)
-
-
-
-
-
-#----------------------------------------------------------------------------------------------------------------------
-# A = F.DivisionElementos("ABC/A=0",Porcentajes)
-    # # ------------- GRAFICA
-    # B = ['000', '001', '010', '011', '100', '101', '110', '111']
-
-    # # Crear un DataFrame de Pandas
-    # df = pd.DataFrame({'Probabilidades': A, 'Estados': B})
-
-    # # Colores para las barras
-    # colores = ['blue', 'green', 'red', 'purple', 'orange', 'brown', 'pink', 'gray']
-
-    # # Graficar con Matplotlib
-    # fig, ax = plt.subplots()
-    # barras = ax.bar(df['Estados'], df['Probabilidades'], color=colores)
-
-    # # Mostrar las probabilidades dentro de las barras
-    # for bar, prob in zip(barras, A):
-    #     height = bar.get_height()
-    #     ax.text(bar.get_x() + bar.get_width() / 2, height, f'{prob:.2f}', ha='center', va='bottom')
-
-    # plt.xlabel('Estados')
-    # plt.ylabel('Probabilidades')
-    # plt.title('Grafica de las probabilidades')
-    # plt.show()
-

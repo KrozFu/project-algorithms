@@ -1,5 +1,7 @@
 import pandas as pd
 import src.exclusiones as E
+import re
+from itertools import product
 
 val_alfa = {
     'A': 0,
@@ -192,7 +194,9 @@ def EstadoEstadoP(Array,Posiciones,elementos):
 def DivisionElementos(Operacion,Porcentajes):
     Operacion = Operacion.split("/")
     ElementosFuturos= Operacion[0]
+
     print(Operacion)
+    
     if(Operacion[1]!=str(0) and Operacion[0]!=str(0)):
         ElementosPresente=Operacion[1].split("=")[0]
         ValorPresente=Operacion[1].split("=")[1]
@@ -207,7 +211,6 @@ def DivisionElementos(Operacion,Porcentajes):
         return(Porcentajes[ValorPresente])
     else:
 
-
         #print(ElementosFuturos+' / '+ElementosPresente)
         if(ElementosPresente == str(0)):
             if(len(ElementosFuturos)==3):
@@ -221,11 +224,19 @@ def DivisionElementos(Operacion,Porcentajes):
         
         # Entrada para evaluar futuro vacio
         elif(ElementosFuturos == str(0)):
-            val_presente = val_alfa[ElementosPresente]
-            diccionario_resultante = E.reducir_diccionario(Porcentajes,val_presente)
-            # print(E.FuturoCero(diccionario_resultante))
+            val_llave = ElementosPresente.split("=")[1]
+            ElementosPresente = ElementosPresente.split("=")[0]
 
-            return(E.FuturoCero(diccionario_resultante))
+            # Estalla por usar dos variables cuando el futuro es 0
+            if len(ElementosPresente) == 1:
+                val_presente = val_alfa[ElementosPresente]
+                diccionario_resultante = E.reducir_diccionario(Porcentajes,val_presente)
+                resultado = E.FuturoCero(diccionario_resultante,val_llave)
+            else:
+                val = [100.0]
+                resultado = val
+            
+            return resultado
 
 
         elif(len(ElementosFuturos)!=3 and len(ElementosPresente)==3):
@@ -239,3 +250,31 @@ def DivisionElementos(Operacion,Porcentajes):
         else:
             #print(Casos[ValorPresente])
             return(Casos[ValorPresente])
+
+
+def tratamiento(cadena):
+    nueva_cadena = re.sub(r'0(?=[A-Za-z])', '', cadena)
+    return nueva_cadena
+
+def generar_combinaciones(vector1, vector2):
+    combinaciones = {}
+    contador = 0
+
+    for elem1, elem2 in product(vector1, vector2):
+        if elem1 == '0' and elem2 == '0':
+            continue
+
+        combinacion1 = f'{elem1}/{elem2}'
+        combinacion2 = f'{"".join([x for x in vector1 if x != elem1])}/{"".join([x for x in vector2 if x != elem2])}'
+
+        combinaciones[contador] = [combinacion1, tratamiento(combinacion2)]
+        contador += 1
+
+    for i, elem1 in enumerate(vector1):
+        combinacion1 = f'{elem1}/{"".join(vector2[1:])}'
+        combinacion2 = f'{"".join(vector1[:i] + vector1[i+1:])}/{"".join(vector2[0])}'
+
+        combinaciones[contador] = [combinacion1, tratamiento(combinacion2)]
+        contador += 1
+
+    return combinaciones

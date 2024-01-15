@@ -74,7 +74,6 @@ def ExcluirunosFuturos(elemento,tabla):
 
 
 
-
     elif elemento == ['B','C']:
         for Key,value in tabla.items():
             Futuros[Key]=[0,0]
@@ -220,15 +219,6 @@ def PresenteCero(Futuro):
     return Final
 
 
-
-def FuturoCero(Presente):
-    resultados = {clave: sum(valores) for clave, valores in Presente.items()}
-    final = []
-    for x in resultados:
-        final.append(resultados[str(x)])
-    return final
-
-
 def EMD(Primera,Segunda):
     emd = 0
     for x in range(len(Primera)):
@@ -239,15 +229,20 @@ def EMD(Primera,Segunda):
                 emd += Segunda[x]*0.01 - Primera[x]*0.01
     return emd
 
+def FuturoCero(diccionario, llave):
+    Final = []
+    if llave in diccionario:
+        Final.append(sum(diccionario[llave])/sum(diccionario[llave])*100)
+        return Final
+    else:
+        return 0.0 
 
 def reducir_diccionario(diccionario, val_presente):
     nuevos_items = {'0': [0.0] * len(diccionario['000']),
                     '1': [0.0] * len(diccionario['000'])}
-
     for clave, valores in diccionario.items():
         if clave[val_presente] == "0":
             nuevos_items['0'] = [nuevos_items['0'][i] + valores[i] for i in range(len(valores))]
         elif clave[val_presente] == "1":
             nuevos_items['1'] = [nuevos_items['1'][i] + valores[i] for i in range(len(valores))]
-
     return nuevos_items
