@@ -88,59 +88,7 @@ def CrearEstados(Array):
     # futuros_list = ['0'] + list(futuros)
     # presentes_list = ['0'] + list(presentes)
 
-    generar_posibles_casos(futuros_list, presentes_list, estado, Porcentajes)
-
-
-def generar_posibles_casos(vector1, vector2, estado, porcentajes):
-    def calcular_resultado(caso):
-        # Extraer el resultado de la división y convertir los caracteres según el diccionario
-        res = caso.split("/")[1]
-        if res != "0":
-            resultado_val = ''.join(dic_val_presentes.get(caracter, '') for caracter in res)
-            caso = f"{caso}={resultado_val}"
-        return caso
-
-    # Obtener las subcadenas omitiendo el primer elemento (vector1[0] y vector2[0])
-    string1 = ''.join(vector1[1:])
-    string2 = ''.join(vector2[1:])
-
-    # Crear el caso base
-    caso_base = f"{string1}/{string2}={estado}"
-
-    dic_val_presentes = dict(zip(string2, estado))
-
-    # Verificar que las longitudes de ambas cadenas sean iguales
-    if len(string2) != len(estado):
-        print("Las longitudes de las cadenas no son iguales.")
-    else:
-        # Calcular la división de los elementos y mostrar el caso base
-        resultados = F.DivisionElementos(caso_base, porcentajes)
-        print("Caso Base")
-        print(resultados)
-        print("-----------------------------------------------------------")
-
-        # Generar combinaciones de casos
-        combinaciones = F.generar_combinaciones(vector1, vector2)
-
-        for llave, valores in combinaciones.items():
-            caso1, caso2 = valores[0], valores[1]
-            caso1 = calcular_resultado(caso1)
-            caso2 = calcular_resultado(caso2)
-
-            # Calcular la mejor solución usando la función 'calculo_emd_funcion'
-            mejor_solucion = calculo_emd_funcion(caso1, caso2, porcentajes, resultados)
-            # print(f"EMD={mejor_solucion}")
-            # print("-----------------------------------------------------------")
-
-
-def calculo_emd_funcion(caso1, caso2, porcentajes, resultados):
-    primero = F.DivisionElementos(caso1, porcentajes)
-    segundo = F.DivisionElementos(caso2, porcentajes)
-
-    multiplicacion = {'A': primero, 'B': segundo}
-
-    distancia = E.EMD(resultados, E.Multiplicar(multiplicacion))
-    return distancia
+    F.generar_posibles_casos(futuros_list, presentes_list, estado, Porcentajes)
 
 
 def main():
