@@ -2,6 +2,7 @@ import pandas as pd
 import src.exclusiones as E
 import re
 from itertools import product
+import queue
 
 val_alfa = {
     'A': 0,
@@ -195,7 +196,7 @@ def DivisionElementos(Operacion,Porcentajes):
     Operacion = Operacion.split("/")
     ElementosFuturos= Operacion[0]
 
-    print(Operacion)
+    # print(Operacion)
     
     if(Operacion[1]!=str(0) and Operacion[0]!=str(0)):
         ElementosPresente=Operacion[1].split("=")[0]
@@ -256,9 +257,19 @@ def tratamiento(cadena):
     nueva_cadena = re.sub(r'0(?=[A-Za-z])', '', cadena)
     return nueva_cadena
 
-def generar_combinaciones(vector1, vector2):
+def generar_combinaciones(vector1, vector2, estado):
+    # Extraer el resultado de la división y convertir los caracteres según el diccionario
+    def calcular_resultado(caso):
+        res = caso.split("/")[1]
+        if res != "0":
+            resultado_val = ''.join(dic_val_presentes.get(caracter, '') for caracter in res)
+            caso = f"{caso}={resultado_val}"
+        return caso
+    
     combinaciones = {}
     contador = 0
+
+    dic_val_presentes = dict(zip(''.join(vector2[1:]), estado))
 
     for elem1, elem2 in product(vector1, vector2):
         if elem1 == '0' and elem2 == '0':
@@ -277,56 +288,76 @@ def generar_combinaciones(vector1, vector2):
         combinaciones[contador] = [combinacion1, tratamiento(combinacion2)]
         contador += 1
 
-    return combinaciones
+    resultado_final_combinaciones = {llave: [calcular_resultado(caso) for caso in valores] for llave, valores in combinaciones.items()}
+    return resultado_final_combinaciones
 
 
 def calculo_emd_funcion(caso1, caso2, porcentajes, resultados):
     primero = DivisionElementos(caso1, porcentajes)
     segundo = DivisionElementos(caso2, porcentajes)
-
     multiplicacion = {'A': primero, 'B': segundo}
 
+    print(primero)
+    print(segundo)
+    
     distancia = E.EMD(resultados, E.Multiplicar(multiplicacion))
+
     return distancia
 
+def solucion(valores, porcentajes, resultado_caso_general):
+    mejor_solucion = calculo_emd_funcion(valores[0], valores[1], porcentajes, resultado_caso_general)
+    return mejor_solucion
 
-def generar_posibles_casos(vector1, vector2, estado, porcentajes):
-    def calcular_resultado(caso):
-        # Extraer el resultado de la división y convertir los caracteres según el diccionario
-        res = caso.split("/")[1]
-        if res != "0":
-            resultado_val = ''.join(dic_val_presentes.get(caracter, '') for caracter in res)
-            caso = f"{caso}={resultado_val}"
-        return caso
-
-    # Obtener las subcadenas omitiendo el primer elemento (vector1[0] y vector2[0])
-    string1 = ''.join(vector1[1:])
-    string2 = ''.join(vector2[1:])
-
+def solucion_minima(vector1, vector2, estado, porcentajes):
     # Crear el caso base
-    caso_base = f"{string1}/{string2}={estado}"
+    caso_general = f"{''.join(vector1[1:])}/{''.join(vector2[1:])}={estado}"
+    
+    # Calcular la división de los elementos y mostrar el cago general
+    resultado_caso_general = DivisionElementos(caso_general, porcentajes)
 
-    dic_val_presentes = dict(zip(string2, estado))
+    # Inicializar la cola de prioridad
+    cola_prioridad = queue.PriorityQueue()
+    # Agregar el caso base a la cola de prioridad
+    cola_prioridad.put((0, vector1, vector2, resultado_caso_general))
 
-    # Verificar que las longitudes de ambas cadenas sean iguales
-    if len(string2) != len(estado):
-        print("Las longitudes de las cadenas no son iguales.")
-    else:
-        # Calcular la división de los elementos y mostrar el caso base
-        resultados = DivisionElementos(caso_base, porcentajes)
-        print("Caso Base")
-        print(resultados)
-        print("-----------------------------------------------------------")
+    while not cola_prioridad.empty():
+        # Obtener el próximo elemento de la cola de prioridad
+        _, v1, v2, res = cola_prioridad.get()
 
         # Generar combinaciones de casos
-        combinaciones = generar_combinaciones(vector1, vector2)
+        combinaciones = generar_combinaciones(v1, v2, estado)
 
         for llave, valores in combinaciones.items():
-            caso1, caso2 = valores[0], valores[1]
-            caso1 = calcular_resultado(caso1)
-            caso2 = calcular_resultado(caso2)
+            nueva_solucion = solucion(valores, porcentajes, res)
+            
+            if nueva_solucion == 0:
+                # print(f'EMD={nueva_solucion}')
+                return nueva_solucion  # Se encontró una solución, terminar
 
-            # Calcular la mejor solución usando la función 'calculo_emd_funcion'
-            mejor_solucion = calculo_emd_funcion(caso1, caso2, porcentajes, resultados)
-            print(f'EMD={mejor_solucion}')
-            print("-----------------------------------------------------------")
+            # Calcular una cota inferior para la solución actual
+            cota_inferior = nueva_solucion
+            # Agregar la combinación a la cola de prioridad con la cota inferior como prioridad
+            cola_prioridad.put((cota_inferior, valores[0], valores[1], DivisionElementos(llave, porcentajes)))
+
+    # Si se llega aquí, no se encontró una solución con distancia cero
+    return None
+
+
+def posibles_soluciones(vector1, vector2, estado, porcentajes):
+    # Crear el caso base
+    caso_general = f"{''.join(vector1[1:])}/{''.join(vector2[1:])}={estado}"
+    
+    # Calcular la división de los elementos y mostrar el cago general
+    resultado_caso_general = DivisionElementos(caso_general, porcentajes)
+    print("Caso Base")
+    print(resultado_caso_general)
+    print("-----------------------------------------------------------")
+
+    # Generar combinaciones de casos
+    combinaciones = generar_combinaciones(vector1, vector2, estado)
+    # print(combinaciones)
+
+    for llave, valores in combinaciones.items():
+        mejor_solucion = solucion(valores, porcentajes, resultado_caso_general)
+        print(f'EMD={mejor_solucion}')
+        print("-----------------------------------------------------------")

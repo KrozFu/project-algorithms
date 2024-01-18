@@ -88,8 +88,9 @@ def CrearEstados(Array):
     # futuros_list = ['0'] + list(futuros)
     # presentes_list = ['0'] + list(presentes)
 
-    F.generar_posibles_casos(futuros_list, presentes_list, estado, Porcentajes)
-
+    
+    # F.posibles_soluciones(futuros_list, presentes_list, estado, Porcentajes)
+    F.solucion_minima(futuros_list, presentes_list, estado, Porcentajes)
 
 def main():
     CrearEstados(CargarDatos()[0]);
