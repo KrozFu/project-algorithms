@@ -3,6 +3,7 @@ import pandas as pd
 import src.exclusiones as E
 import tests.funciones_tests as T
 import sys
+import json
 
 Entrada1 = [0,1,1,0,1,1,0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,1,0,0,0,1];
 Entrada2 = [0,0,0,1,1,0,1,0,1,0,1,0,1,0,1,1,0,1,1,0,1,1,0,1,1,1,1,0,0,0];
@@ -69,32 +70,36 @@ def CrearEstados(Array):
     # for x in Porcentajes.keys():
     #     print(x+str(Porcentajes[x]))
 
-    # T.funciones_pruebas(Porcentajes)
 
-    futuros_list = ['0', 'A', 'B', 'C']
-    presentes_list = ['0', 'A', 'C']
-    estado = "10"
+    # futuros_list = ['0', 'A', 'B', 'C']
+    # presentes_list = ['0', 'A']
+    # estado = "0"
 
-    # # Verificar si se proporcionan suficientes argumentos
-    # if len(sys.argv) != 4:
-    #     print("Data: <futuros> <presentes> <estado>")
-    #     sys.exit(1)
+    # Verificar si se proporcionan suficientes argumentos
+    if len(sys.argv) != 4:
+        print("Data: <futuros> <presentes> <estado>")
+        sys.exit(1)
 
-    # # Obtener las variables de la línea de comandos
-    # futuros = sys.argv[1]
-    # presentes = sys.argv[2]
-    # estado = sys.argv[3]
+    # Obtener las variables de la línea de comandos
+    futuros = sys.argv[1]
+    presentes = sys.argv[2]
+    estado = sys.argv[3]
 
-    # futuros_list = ['0'] + list(futuros)
-    # presentes_list = ['0'] + list(presentes)
-
-    
-    # F.posibles_soluciones(futuros_list, presentes_list, estado, Porcentajes)
-    F.solucion_minima(futuros_list, presentes_list, estado, Porcentajes)
+    futuros_list = ['0'] + list(futuros)
+    presentes_list = ['0'] + list(presentes)
+   
+    # T.funciones_pruebas(Porcentajes) # Fuon de pruebas
+    # F.posibles_soluciones(futuros_list, presentes_list, estado, Porcentajes) # funcion para realizar pruebas
+    dic_data = F.solucion_minima(futuros_list, presentes_list, estado, Porcentajes) # funcion factible
+    return dic_data
 
 def main():
-    CrearEstados(CargarDatos()[0]);
     # CrearEstados([Entrada1,Entrada2,Entrada3]);
+    salida = CrearEstados(CargarDatos()[0])
+    json_salida = json.dumps(salida)
+    print(json_salida)  # Imprime la cadena JSON
+    return json_salida
+
 
 if __name__ == "__main__":
     main()

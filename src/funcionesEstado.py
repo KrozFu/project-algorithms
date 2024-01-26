@@ -2,7 +2,6 @@ import pandas as pd
 import src.exclusiones as E
 import re
 from itertools import product
-import queue
 
 val_alfa = {
     'A': 0,
@@ -289,58 +288,57 @@ def generar_combinaciones(vector1, vector2, estado):
         contador += 1
 
     resultado_final_combinaciones = {llave: [calcular_resultado(caso) for caso in valores] for llave, valores in combinaciones.items()}
+
+    # print(resultado_final_combinaciones)
+
+    # resultado_final_combinaciones = {0: ['0/C=0', 'ABC/A=1'], 1: ['C/C=0', 'AB/A=1'], 2: ['A/0', 'BC/AC=10'], 3: ['A/A=1', 'BC/C=0'], 4: ['A/C=0', 'BC/A=1'], 5: ['B/0', 'AC/AC=10'], 6: ['B/A=1', 'AC/C=0'], 7: ['B/C=0', 'AC/A=1'], 8: ['C/0', 'AB/AC=10'], 9: ['C/A=1', 'AB/C=0'], 10: ['0/A=1', 'ABC/C=0'], 11: ['0/AC=10', 'ABC/0'], 12: ['A/AC=10', 'BC/0'], 13: ['B/AC=10', 'AC/0'], 14: ['C/AC=10', 'AB/0']}
+    # resultado_final_combinaciones = {0: ['C/A=1', 'AB/C=0']}
+    # resultado_final_combinaciones = {0: ['0/A=1', 'ABC/C=0']} # --> Caso funcional
+
     return resultado_final_combinaciones
 
 
 def calculo_emd_funcion(caso1, caso2, porcentajes, resultados):
     primero = DivisionElementos(caso1, porcentajes)
     segundo = DivisionElementos(caso2, porcentajes)
-    multiplicacion = {'A': primero, 'B': segundo}
+    # print(primero)
+    # print(segundo)
 
-    print(primero)
-    print(segundo)
-    
+    multiplicacion = {'A': primero, 'B': segundo} 
     distancia = E.EMD(resultados, E.Multiplicar(multiplicacion))
 
-    return distancia
+    return distancia, primero, segundo
 
 def solucion(valores, porcentajes, resultado_caso_general):
-    mejor_solucion = calculo_emd_funcion(valores[0], valores[1], porcentajes, resultado_caso_general)
-    return mejor_solucion
+    mejor_solucion, primero, segundo = calculo_emd_funcion(valores[0], valores[1], porcentajes, resultado_caso_general)
+    return mejor_solucion, primero, segundo
 
-def solucion_minima(vector1, vector2, estado, porcentajes):
+def solucion_minima(vector1, vector2, estado, porcentajes, limite_superior=float('inf')):
     # Crear el caso base
     caso_general = f"{''.join(vector1[1:])}/{''.join(vector2[1:])}={estado}"
-    
-    # Calcular la división de los elementos y mostrar el cago general
+
+    # Calcular la división de los elementos y mostrar el caso general
     resultado_caso_general = DivisionElementos(caso_general, porcentajes)
 
-    # Inicializar la cola de prioridad
-    cola_prioridad = queue.PriorityQueue()
-    # Agregar el caso base a la cola de prioridad
-    cola_prioridad.put((0, vector1, vector2, resultado_caso_general))
+    # Generar combinaciones de casos
+    combinaciones = generar_combinaciones(vector1, vector2, estado)
 
-    while not cola_prioridad.empty():
-        # Obtener el próximo elemento de la cola de prioridad
-        _, v1, v2, res = cola_prioridad.get()
+    for llave, valores in combinaciones.items():
+        mejor_solucion, primero, segundo = solucion(valores, porcentajes, resultado_caso_general)
+        # print(f'EMD={mejor_solucion}')
+        # print("-----------------------------------------------------------")
 
-        # Generar combinaciones de casos
-        combinaciones = generar_combinaciones(v1, v2, estado)
-
-        for llave, valores in combinaciones.items():
-            nueva_solucion = solucion(valores, porcentajes, res)
+        # Aplicar la técnica de poda
+        if mejor_solucion == 0:
+            data_dic = [caso_general, resultado_caso_general, valores[0], primero, valores[1], segundo]
             
-            if nueva_solucion == 0:
-                # print(f'EMD={nueva_solucion}')
-                return nueva_solucion  # Se encontró una solución, terminar
-
-            # Calcular una cota inferior para la solución actual
-            cota_inferior = nueva_solucion
-            # Agregar la combinación a la cola de prioridad con la cota inferior como prioridad
-            cola_prioridad.put((cota_inferior, valores[0], valores[1], DivisionElementos(llave, porcentajes)))
-
-    # Si se llega aquí, no se encontró una solución con distancia cero
-    return None
+            # print("Se alcanzó la mejor solución con EMD=0. Terminando el proceso.")
+            return diccionario_grafica(data_dic)
+        elif mejor_solucion < limite_superior:
+            limite_superior = mejor_solucion
+        else:
+            print(f"Poda de rama. EMD={mejor_solucion} es mayor que el límite superior {limite_superior}.")
+            continue
 
 
 def posibles_soluciones(vector1, vector2, estado, porcentajes):
@@ -358,6 +356,23 @@ def posibles_soluciones(vector1, vector2, estado, porcentajes):
     # print(combinaciones)
 
     for llave, valores in combinaciones.items():
-        mejor_solucion = solucion(valores, porcentajes, resultado_caso_general)
+        mejor_solucion, primero, segundo = solucion(valores, porcentajes, resultado_caso_general)
         print(f'EMD={mejor_solucion}')
         print("-----------------------------------------------------------")
+
+
+def diccionario_grafica(data):
+    result_dict = {}
+    current_conjunto = None
+
+    for i, item in enumerate(data):
+        if '/' in item:
+            # Se trata de una etiqueta general, crearemos un nuevo conjunto
+            current_conjunto = f"conjunto_{i // 2 + 1}"
+            result_dict[current_conjunto] = [{"caso": item}]
+        else:
+            # Se trata de valores, los agregaremos al conjunto actual
+            result_dict[current_conjunto].append({"valores": item})
+
+    # print(result_dict)
+    return result_dict
