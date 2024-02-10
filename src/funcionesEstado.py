@@ -257,7 +257,6 @@ def tratamiento(cadena):
     return nueva_cadena
 
 def generar_combinaciones(vector1, vector2, estado):
-    # Extraer el resultado de la división y convertir los caracteres según el diccionario
     def calcular_resultado(caso):
         res = caso.split("/")[1]
         if res != "0":
@@ -265,36 +264,48 @@ def generar_combinaciones(vector1, vector2, estado):
             caso = f"{caso}={resultado_val}"
         return caso
     
-    combinaciones = {}
-    contador = 0
+    combinaciones_set = set()
 
     dic_val_presentes = dict(zip(''.join(vector2[1:]), estado))
+
+    def agregar_combinacion(elem1, elem2):
+        combinacion1 = f'{elem1}/{elem2}'
+        combinacion2 = f'{"".join([x for x in vector1 if x != elem1])}/{"".join([x for x in vector2 if x != elem2])}'
+
+        combinacion = [combinacion1, tratamiento(combinacion2)]
+        return combinacion
 
     for elem1, elem2 in product(vector1, vector2):
         if elem1 == '0' and elem2 == '0':
             continue
 
-        combinacion1 = f'{elem1}/{elem2}'
-        combinacion2 = f'{"".join([x for x in vector1 if x != elem1])}/{"".join([x for x in vector2 if x != elem2])}'
-
-        combinaciones[contador] = [combinacion1, tratamiento(combinacion2)]
-        contador += 1
+        combinacion = agregar_combinacion(elem1, elem2)
+        combinacion.sort()  # Ordenar las cadenas dentro de la combinación
+        if '0/0' not in combinacion:
+            combinaciones_set.add(tuple(combinacion))
 
     for i, elem1 in enumerate(vector1):
+        if elem1 == '0':
+            continue
+
         combinacion1 = f'{elem1}/{"".join(vector2[1:])}'
         combinacion2 = f'{"".join(vector1[:i] + vector1[i+1:])}/{"".join(vector2[0])}'
 
-        combinaciones[contador] = [combinacion1, tratamiento(combinacion2)]
-        contador += 1
+        combinacion = [combinacion1, tratamiento(combinacion2)]
+        combinacion.sort()
 
-    resultado_final_combinaciones = {llave: [calcular_resultado(caso) for caso in valores] for llave, valores in combinaciones.items()}
+        if '0/0' not in combinacion:
+            combinaciones_set.add(tuple(combinacion))
+
+   
+    resultado_final_combinaciones = {i: [calcular_resultado(caso) for caso in combinacion] for i, combinacion in enumerate(combinaciones_set)}
 
     # print(resultado_final_combinaciones)
 
     # resultado_final_combinaciones = {0: ['0/C=0', 'ABC/A=1'], 1: ['C/C=0', 'AB/A=1'], 2: ['A/0', 'BC/AC=10'], 3: ['A/A=1', 'BC/C=0'], 4: ['A/C=0', 'BC/A=1'], 5: ['B/0', 'AC/AC=10'], 6: ['B/A=1', 'AC/C=0'], 7: ['B/C=0', 'AC/A=1'], 8: ['C/0', 'AB/AC=10'], 9: ['C/A=1', 'AB/C=0'], 10: ['0/A=1', 'ABC/C=0'], 11: ['0/AC=10', 'ABC/0'], 12: ['A/AC=10', 'BC/0'], 13: ['B/AC=10', 'AC/0'], 14: ['C/AC=10', 'AB/0']}
     # resultado_final_combinaciones = {0: ['C/A=1', 'AB/C=0']}
     # resultado_final_combinaciones = {0: ['0/A=1', 'ABC/C=0']} # --> Caso funcional
-
+    
     return resultado_final_combinaciones
 
 
@@ -345,18 +356,21 @@ def posibles_soluciones(vector1, vector2, estado, porcentajes):
     # Crear el caso base
     caso_general = f"{''.join(vector1[1:])}/{''.join(vector2[1:])}={estado}"
     
-    # Calcular la división de los elementos y mostrar el cago general
+    # Calcular la división de los elementos y mostrar el cago general   
     resultado_caso_general = DivisionElementos(caso_general, porcentajes)
+    print(caso_general)
     print("Caso Base")
     print(resultado_caso_general)
     print("-----------------------------------------------------------")
 
     # Generar combinaciones de casos
     combinaciones = generar_combinaciones(vector1, vector2, estado)
-    # print(combinaciones)
+    print(combinaciones)
+    print("-----------------------------------------------------------")
 
     for llave, valores in combinaciones.items():
         mejor_solucion, primero, segundo = solucion(valores, porcentajes, resultado_caso_general)
+        print(valores)
         print(f'EMD={mejor_solucion}')
         print("-----------------------------------------------------------")
 
