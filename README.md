@@ -4,6 +4,12 @@ Este repositorio contiene una muestra de resultados en matrices de análisis de 
 ## Instalación de Requisitos
 Se recomienda utilizar un entorno virtual, como _**venv**_, para evitar conflictos con las dependencias de otras aplicaciones. A continuación, se proporciona el comando para instalar las bibliotecas de Python necesarias:
 
+Se puede ejecutar la siguiente línea para instalar un ambiente virtual:
+``````
+python3 -m venv venv
+``````
+
+Instalar los requerimientos necesarios del proyecto.
 ``````
 pip install -r requirements.txt
 ``````

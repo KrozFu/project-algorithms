@@ -206,8 +206,6 @@ def DivisionElementos(Operacion,Porcentajes):
     #print("Presente = "+ElementosPresente+", Valor = "+ValorPresente+", Futuro = "+ElementosFuturos)
     Casos = {}
     if(len(ElementosPresente)==3 and len(ElementosFuturos)==3):
-        #print(Porcentajes[ValorPresente])
-        #print(Porcentajes)
         return(Porcentajes[ValorPresente])
     else:
 

@@ -81,11 +81,13 @@ def CrearEstados(Array):
     # # estado = "100"
 
 
-    # # futuros_list = ['0','A','B']
-    # # presentes_list = ['0','C']
-    # # estado = "0"
+    # futuros_list = ['0','A','B','C']
+    # presentes_list = ['0','A','B','C']
+    # estado = "100"
+    
+    # T.funciones_pruebas(Porcentajes) # Funciones de pruebas
+    # F.posibles_soluciones(futuros_list, presentes_list, estado, Porcentajes) # funcion para realizar pruebas
     ## ---------------------------------------------
-
 
     # Verificar si se proporcionan suficientes argumentos
     if len(sys.argv) != 4:
@@ -99,11 +101,8 @@ def CrearEstados(Array):
 
     futuros_list = ['0'] + list(futuros)
     presentes_list = ['0'] + list(presentes)
-   
-    # T.funciones_pruebas(Porcentajes) # Funciones de pruebas
-    # F.posibles_soluciones(futuros_list, presentes_list, estado, Porcentajes) # funcion para realizar pruebas
+      
     dic_data = F.solucion_minima(futuros_list, presentes_list, estado, Porcentajes) # funcion factible
-
     return dic_data
 
 def main():
@@ -112,7 +111,6 @@ def main():
     json_salida = json.dumps(salida)
     print(json_salida)  # Imprime la cadena JSON
     return json_salida
-
 
 if __name__ == "__main__":
     main()
